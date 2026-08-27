@@ -75,25 +75,25 @@ def device_history(device_id):
 def create_measurement():
     data = request.get_json(silent=True) or {}
     errors = validate_measurement(data)
-
+ 
     if errors:
         print(f"INVALID measurement from {data.get('deviceId', 'unknown')}: {errors}")
         return jsonify({"errors": errors}), 400
-
-    # TODO M1:
-    # Kontrollera med device_exists(...) att deviceId tillhör en känd sensor.
-    # Okänd sensor ska ge 400 med ett tydligt JSON-fel.
-    #
-    # Spara till PostgreSQL via insert_measurement(data).
-    #
-    # TODO M2:
-    # Uppdatera latest-cache för sensorn.
-    #
-    # Under starter-fasen returneras 202 så att simulatorn kan köras
-    # även innan studenten implementerat persistensen.
-    print(f"VALID measurement received: {data}")
-    return jsonify({"status": "accepted", "measurement": data}), 202
-
+ 
+    device_id = data["deviceId"]
+ 
+    # M1: an unknown deviceId is a client error, not a database error.
+    if not device_exists(device_id):
+        print(f"UNKNOWN device rejected: {device_id}")
+        return jsonify({"errors": [f"unknown deviceId: {device_id}"]}), 400
+ 
+    saved = insert_measurement(data)
+ 
+    # M2: keep the latest-cache in sync with the newest write.
+    set_latest_in_cache(device_id, saved)
+ 
+    print(f"STORED measurement: {saved}")
+    return jsonify({"status": "created", "measurement": saved}), 201
 
 @app.get("/statistics")
 def statistics():
