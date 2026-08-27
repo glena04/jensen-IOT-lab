@@ -72,6 +72,18 @@ def get_measurements_for_device(device_id):
 
 
 def insert_measurement(data):
-    # TODO M1:
-    # Spara ett validerat mätvärde i PostgreSQL.
-    return None
+    query = """
+        INSERT INTO measurements (device_id, temperature, humidity, battery)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id, device_id, temperature, humidity, battery, created_at;
+    """
+    params = (
+        data["deviceId"],
+        data["temperature"],
+        data.get("humidity"),
+        data.get("battery"),
+    )
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(query, params)
+            return _json_ready(cur.fetchone())
