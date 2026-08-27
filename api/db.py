@@ -60,15 +60,33 @@ def device_exists(device_id):
 
 
 def get_latest_measurement(device_id):
-    # TODO M1:
-    # Implementera senaste mätvärdet för en sensor.
-    return None
-
-
+    """Return the newest measurement for one sensor, or None if it has none."""
+    query = f"""
+        SELECT {MEASUREMENT_COLUMNS}
+        FROM measurements
+        WHERE device_id = %s
+        ORDER BY created_at DESC, id DESC
+        LIMIT 1;
+    """
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(query, (device_id,))
+            return _json_ready(cur.fetchone())
+ 
+ 
 def get_measurements_for_device(device_id):
-    # TODO M1:
-    # Implementera historik för en sensor.
-    return []
+    """Return the full history for one sensor. An empty list is a valid result."""
+    query = f"""
+        SELECT {MEASUREMENT_COLUMNS}
+        FROM measurements
+        WHERE device_id = %s
+        ORDER BY created_at DESC, id DESC
+        LIMIT 100;
+    """
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(query, (device_id,))
+            return [_json_ready(row) for row in cur.fetchall()]
 
 
 def insert_measurement(data):
