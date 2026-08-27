@@ -1,1 +1,28 @@
+name: CI
 
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checka ut koden
+        uses: actions/checkout@v4
+
+      - name: Sätt upp Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installera beroenden
+        run: pip install -r api/requirements.txt
+
+      - name: Kör testerna
+        run: python -m pytest tests -q
+        working-directory: api
+
+      - name: Bygg API-imagen
+        run: docker build -t jensen-iot-api:ci ./api
