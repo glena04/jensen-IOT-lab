@@ -52,10 +52,11 @@ def get_measurements():
 
 
 def device_exists(device_id):
-    # TODO M1:
-    # Kontrollera om device_id finns i tabellen devices.
-    # Returnera True eller False.
-    return False
+    query = "SELECT 1 FROM devices WHERE device_id = %s;"
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, (device_id,))
+            return cur.fetchone() is not None
 
 
 def get_latest_measurement(device_id):
