@@ -25,4 +25,3 @@ Docker Compose lokalt. Fyra tjänster startar med ett kommando. Volymen postgres
 Källfil
 
 Diagrammet ligger som PNG i docs/architecture.png.
-![alt text](architecture-1.png)
