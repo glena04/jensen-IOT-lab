@@ -1,3 +1,5 @@
+<img width="1394" height="868" alt="architecture" src="https://github.com/user-attachments/assets/40475b5c-05b0-4591-971e-2f290df0b729" />
+
 # Reflektionsdokument – obligatorisk leverabel
 
 1. Varför API istället för direktåtkomst till PostgreSQL?
